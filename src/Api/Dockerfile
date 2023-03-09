@@ -1,4 +1,4 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /App
-COPY bin/Release/net6.0/publish/ .
+COPY bin/Release/net6.0/ .
 ENTRYPOINT ["dotnet", "Api.dll"]

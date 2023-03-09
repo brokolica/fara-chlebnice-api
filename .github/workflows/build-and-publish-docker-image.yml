@@ -1,0 +1,38 @@
+name: Build docker image and publish to DigitalOcean
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Image version'
+        required: true
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: src
+    - name: Build
+      working-directory: src
+      run: dotnet build -c Release --no-restore
+    - name: Build the Docker image
+      run: docker build -t fara-chlebnice-api .
+      working-directory: src/Api
+    - name: Install doctl 
+      uses: digitalocean/action-doctl@v3
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    - name: Log in to DO Container Registry
+      run: doctl registry login --expiry-seconds 600
+    - name: Tag image 
+      run: docker tag fara-chlebnice-api \
+           registry.digitalocean.com/bacho-repo/fara-chlebnice-api:${{ github.event.inputs.version }}
+    - name: Push image to DO Container Registry
+      run: docker push registry.digitalocean.com/bacho-repo/fara-chlebnice-api:${{ github.event.inputs.version }}

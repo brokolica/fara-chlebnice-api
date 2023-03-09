@@ -26,7 +26,7 @@ jobs:
       run: docker build -t fara-chlebnice-api .
       working-directory: src/Api
     - name: Install doctl 
-      uses: digitalocean/action-doctl@v3
+      uses: digitalocean/action-doctl@v2
       with:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
     - name: Log in to DO Container Registry

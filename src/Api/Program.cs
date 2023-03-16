@@ -38,6 +38,9 @@ if (app.Environment.IsDevelopment())
     ApplyMigrations(app);
 }
 
+// TODO: temporarily.
+app.UseCors();
+
 app.UseAuthorization();
 
 app.MapControllers();

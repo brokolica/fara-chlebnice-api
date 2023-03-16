@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+  mysql:
+    container_name: FARA_CHLEBNICE_MYSQL
+    image: mysql:8.0.32
+    restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: 'fara-chlebnice'
+      MYSQL_USER: 'test'
+      MYSQL_PASSWORD: 'test123'
+      MYSQL_ROOT_PASSWORD: 'rootpassword'
+    ports:
+      - 3306:3306
+  phpmyadmin:
+    container_name: FARA_CHLEBNICE_PHPADMIN
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:80
+
+volumes:
+  mysql-data:

@@ -1,9 +1,13 @@
+using Api.ConfigLoader;
 using Application.Services;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load configurations.
+builder.Configuration.LoadConfigurations(builder.Environment.EnvironmentName);
 
 // Add services to the container.
 builder.Services.AddScoped<UnitOfWork>();

@@ -1,3 +1,5 @@
+using Application.Contracts;
+using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -6,15 +8,16 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 public class AnnouncementsController : ControllerBase
 {
-    [HttpGet]
-    public IEnumerable<AnnouncementDto> Get()
+    private readonly AnnouncementsService _announcementsService;
+
+    public AnnouncementsController(AnnouncementsService announcementsService)
     {
-        return Enumerable.Range(1, 5).Select(index => new AnnouncementDto
-        {
-            Date = DateTime.Now.AddDays(index),
-            Title = $"Toto je title {index}",
-            Text = $"Toto je text {index}",
-        })
-        .ToArray();
+        _announcementsService = announcementsService;
     }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<AnnouncementDto>>> GetAsync() => Ok(await _announcementsService.GetAnnouncementsAsync());
+
+    [HttpPost]
+    public async Task<ActionResult<AnnouncementDto>> CreateAsync([FromBody] AnnouncementBaseDto data) => Ok(await _announcementsService.CreateAnnouncementAsync(data));
 }

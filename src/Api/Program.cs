@@ -28,25 +28,22 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors(x => x
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowAnyOrigin());
-    
     app.UseSwagger();
     app.UseSwaggerUI();
     ApplyMigrations(app);
 }
 
 // TODO: temporarily.
-app.UseCors();
+app.UseCors(x => x
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .WithOrigins("https://fara-chlebnice-web-q4d9t.ondigitalocean.app"));
 
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
-
 
 static void ApplyMigrations(IHost app)
 {

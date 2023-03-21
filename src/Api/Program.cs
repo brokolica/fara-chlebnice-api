@@ -1,8 +1,12 @@
+using Api.Authorization;
 using Api.ConfigLoader;
 using Application.Services;
 using Infrastructure;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +27,46 @@ builder.Services.AddDbContext<FaraChlebniceDbContext>(options => options.UseMySq
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(
+        JwtBearerDefaults.AuthenticationScheme,
+        options =>
+        {
+            options.Authority = builder.Configuration["Auth0:Domain"];
+            options.Audience = builder.Configuration["Auth0:Audience"];
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = true,
+
+                ValidateIssuer = true,
+                ValidIssuer = builder.Configuration["Auth0:Domain"],
+            };
+        });
+
+builder.Services
+    .AddAuthorization(options =>
+    {
+        options.AddPolicy(
+            "create:announcements",
+            policy => policy.Requirements.Add(
+                new HasScopeRequirement("create:announcements", builder.Configuration["Auth0:Domain"])
+            ));
+        options.AddPolicy(
+            "update:announcements",
+            policy => policy.Requirements.Add(
+                new HasScopeRequirement("update:create", builder.Configuration["Auth0:Domain"])
+            ));
+        options.AddPolicy(
+            "delete:announcements",
+            policy => policy.Requirements.Add(
+                new HasScopeRequirement("delete:create", builder.Configuration["Auth0:Domain"])
+            ));
+    });
+
+// TODO: overit ci treba, ale .NET si to asi registruje defaultne sam.
+builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -38,6 +82,7 @@ if (app.Environment.IsDevelopment())
     ApplyMigrations(app);
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

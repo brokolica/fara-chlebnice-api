@@ -1,5 +1,6 @@
 using Application.Contracts;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -19,5 +20,6 @@ public class AnnouncementsController : ControllerBase
     public async Task<ActionResult<IEnumerable<AnnouncementDto>>> GetAsync() => Ok(await _announcementsService.GetAnnouncementsAsync());
 
     [HttpPost]
+    [Authorize("create:announcements")]
     public async Task<ActionResult<AnnouncementDto>> CreateAsync([FromBody] AnnouncementBaseDto data) => Ok(await _announcementsService.CreateAnnouncementAsync(data));
 }
